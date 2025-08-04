@@ -2,12 +2,17 @@ services:
   - type: web
     name: pesquisa-transporte
     env: python
-    # Descomprime o código-fonte do sistema a partir do arquivo tarball gerado.
-    # Em seguida instala as dependências Python a partir de requirements.txt.
+    # First extract the application tarball that contains the `src` directory and other code.
+    # Then install dependencies from `requirements-cloud.txt`, which includes all packages
+    # necessary for running the application in the Render environment.  Note that
+    # `requirements.txt` inside the tarball is tailored for local development and omits
+    # some production dependencies such as psycopg2 and gunicorn.
     buildCommand: |
       tar -xzf sistema_pesquisa_transporte_atualizado.tar.gz
-      pip install -r requirements.txt
-    # Inicializa o serviço usando gunicorn apontando para a aplicação Flask
+      pip install -r requirements-cloud.txt
+    # Run the Flask app using Gunicorn.  The extracted `src` directory contains
+    # `main.py` with the Flask application defined as `app`.  Bind to the port
+    # provided by Render.
     startCommand: "gunicorn --bind 0.0.0.0:$PORT src.main:app"
     healthCheckPath: "/health"
     plan: free
